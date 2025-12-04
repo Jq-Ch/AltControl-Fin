@@ -3,13 +3,12 @@ using UnityEngine;
 public class LightingToggle : MonoBehaviour
 {
     [Header("Spotlight to toggle")]
-    public Light spotlight;  // 把 SpotlightLight 拖进来
-
+    public Light spotlight;  
     private bool isOn = false;
 
     void Start()
     {
-        // 初始化关闭灯，但不影响准星
+        // 初始化关闭灯
         spotlight.enabled = false;
     }
 

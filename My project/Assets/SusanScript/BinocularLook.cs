@@ -1,9 +1,4 @@
 using UnityEngine;
-
-/// <summary>
-/// 望远镜旋转控制：围绕固定点转动，上下左右限制角度。
-/// 把脚本挂在 BinocularPivot 上。
-/// </summary>
 public class BinocularLook : MonoBehaviour
 {
     [Header("旋转速度（度/秒）")]
@@ -28,17 +23,14 @@ public class BinocularLook : MonoBehaviour
 
     void Update()
     {
-        // 确保旋转点位置不变（即使有别的东西想动它，也拉回来）
         transform.position = initialPosition;
 
         // A / D → Horizontal，W / S → Vertical
         float inputX = Input.GetAxisRaw("Horizontal"); // A/D
         float inputY = Input.GetAxisRaw("Vertical");   // W/S
 
-        // 左右旋转（绕 Y 轴）
         currentYaw += inputX * rotateSpeed * Time.deltaTime;
 
-        // 上下旋转（绕 X 轴）——W 往上看，所以减去
         currentPitch -= inputY * rotateSpeed * Time.deltaTime;
 
         // 限制角度
