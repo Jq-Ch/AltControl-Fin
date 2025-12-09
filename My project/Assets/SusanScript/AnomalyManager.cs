@@ -4,26 +4,11 @@ using UnityEngine;
 
 public class AnomalyManager : MonoBehaviour
 {
-    public List<AnomalyData> anomalyPool;
-    public Transform player;
+    public List<AnomalyData> anomalyPool;   // 三类异常物的 ScriptableObject
+    public List<ZoneSpawn> zones;           // 六个固定生成区
 
-    [Header("Spawn Area")]
-    public BoxCollider spawnArea;   // 生成区域限制（你拖进去）
-
-    [Header("Spawn Settings")]
-    public float minSeparation = 5f;
-
-    [Header("Limit")]
-    public int maxAnomalies = 10;
-
-
-    [Header("Ground Raycast")]
-    public LayerMask groundMask;        // 地面所在 Layer
-
-
+    public int maxAnomalies = 5;
     private List<GameObject> activeAnomalies = new List<GameObject>();
-
-
 
     void Start()
     {
@@ -34,118 +19,56 @@ public class AnomalyManager : MonoBehaviour
     {
         while (true)
         {
-            if (activeAnomalies.Count < maxAnomalies)
+            if (activeAnomalies.Count >= maxAnomalies)
             {
-                SpawnAnAnomaly();
+                Debug.Log("GAME OVER: Too many anomalies!");
+                yield break; // 停止生成
             }
 
-            AnomalyData data = anomalyPool[Random.Range(0, anomalyPool.Count)];
-            float wait = Random.Range(data.minSpawnInterval, data.maxSpawnInterval);
+            TrySpawnAnomaly();
+
+            // 等待下一次刷新
+            float wait = Random.Range(3f, 7f);
             yield return new WaitForSeconds(wait);
         }
     }
 
-    void SpawnAnAnomaly()
+    void TrySpawnAnomaly()
     {
-        // 1. 随机选一个类型
+        // 找所有未占用的 zone
+        List<ZoneSpawn> freeZones = zones.FindAll(z => !z.isOccupied);
+
+        if (freeZones.Count == 0)
+        {
+            Debug.Log("No free zones available.");
+            return;
+        }
+
+        // 随机选一个空 zone
+        ZoneSpawn chosenZone = freeZones[Random.Range(0, freeZones.Count)];
+
+        // 随机选异常物类型
         AnomalyData data = anomalyPool[Random.Range(0, anomalyPool.Count)];
 
-        // 2. 用这个 data 去找生成位置（带它自己的 heightOffset）
-        Vector3 pos = GetValidSpawnPosition(data);
+        // 在 spawnPoint 精准生成
+        GameObject obj = Instantiate(data.prefab, chosenZone.spawnPoint.position, chosenZone.spawnPoint.rotation);
 
-        // 3. 生成
-        GameObject obj = Instantiate(data.prefab, pos, Quaternion.identity);
-
+        // 设置异常物数据
         Anomaly anomaly = obj.AddComponent<Anomaly>();
         anomaly.data = data;
+        anomaly.zoneTag = chosenZone.zoneTag;  // 记录它来自哪个 zone
+        anomaly.manager = this;                // 回调可能需要
 
+        chosenZone.isOccupied = true;          // 占用此区域
         activeAnomalies.Add(obj);
-
-        if (activeAnomalies.Count >= maxAnomalies)
-        {
-            Debug.Log("Game Over: Too many anomalies!");
-            // TODO: 在这里调用你的 GameOver UI / 场景切换
-        }
     }
 
-
-    // ---- NEW: 限制生成在地板区域内 ----
-    Vector3 GetValidSpawnPosition(AnomalyData data)
+    // 给异常物调用：当它被玩家清除时取消占用
+    public void FreeZone(string zoneTag, GameObject obj)
     {
-        // 最多试 30 次找一个不和其他异常太近的位置
-        for (int i = 0; i < 30; i++)
-        {
-            Vector3 randomPosXZ = GetRandomPointOnGroundInsideBox();
+        ZoneSpawn zone = zones.Find(z => z.zoneTag == zoneTag);
+        if (zone != null) zone.isOccupied = false;
 
-            // 防止和现有异常重叠太近
-            if (!OverlapWithOthers(randomPosXZ))
-            {
-                // 加上每种异常物自己的高度偏移
-                randomPosXZ.y += data.heightOffset;
-                return randomPosXZ;
-            }
-        }
-
-        // 实在找不到就随便给一个（至少在地上）
-        Vector3 fallback = GetRandomPointOnGroundInsideBox();
-        fallback.y += data.heightOffset;
-        return fallback;
-    }
-
-    /// <summary>
-    /// 在 BoxCollider 范围内随机一个点，然后用射线从上往下找到真正的地面 Y。
-    /// </summary>
-    Vector3 GetRandomPointOnGroundInsideBox()
-    {
-        if (spawnArea == null)
-        {
-            Debug.LogError("SpawnArea (BoxCollider) 没有设置！");
-            return player.position;
-        }
-
-        // 在 Box 的 local 空间里随机一个点，再转成世界坐标
-        Vector3 boxCenter = spawnArea.center;
-        Vector3 boxSize = spawnArea.size;
-
-        Vector3 localRandom = new Vector3(
-            Random.Range(-boxSize.x * 0.5f, boxSize.x * 0.5f),
-            boxSize.y * 0.5f, // 取 Box 顶部
-            Random.Range(-boxSize.z * 0.5f, boxSize.z * 0.5f)
-        );
-
-        Vector3 worldFrom = spawnArea.transform.TransformPoint(boxCenter + localRandom);
-
-        // 从上往下打射线找到地面
-        Ray ray = new Ray(worldFrom + Vector3.up * 10f, Vector3.down);
-        if (Physics.Raycast(ray, out RaycastHit hit, 50f, groundMask))
-        {
-            return hit.point;   // 正好在地面上
-        }
-
-        // 万一没打到地，就退回原来的随机点
-        return worldFrom;
-    }
-
-
-    Vector3 GetRandomPointInsideBox(BoxCollider box)
-    {
-        Vector3 center = box.transform.position + box.center;
-        Vector3 size = box.size;
-
-        float x = Random.Range(center.x - size.x / 2, center.x + size.x / 2);
-        float y = center.y;
-        float z = Random.Range(center.z - size.z / 2, center.z + size.z / 2);
-
-        return new Vector3(x, y, z);
-    }
-
-    bool OverlapWithOthers(Vector3 pos)
-    {
-        foreach (var a in activeAnomalies)
-        {
-            if (Vector3.Distance(a.transform.position, pos) < minSeparation)
-                return true;
-        }
-        return false;
+        activeAnomalies.Remove(obj);
     }
 }

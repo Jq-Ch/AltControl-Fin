@@ -4,6 +4,8 @@ public class Anomaly : MonoBehaviour
 {
     public AnomalyData data;
     private Transform player;
+    public string zoneTag;        // 哪个区域生成的
+    public AnomalyManager manager;
 
     private void Start()
     {
@@ -47,5 +49,11 @@ public class Anomaly : MonoBehaviour
         Vector3 offset = Quaternion.Euler(0, randomAngle, 0) * Vector3.forward * dist;
 
         transform.position = player.position + offset;
+    }
+
+    public void Remove()
+    {
+        manager.FreeZone(zoneTag, gameObject);
+        Destroy(gameObject);
     }
 }

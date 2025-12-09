@@ -24,4 +24,6 @@ public class AnomalyData : ScriptableObject
     [Header("Stealth Settings (for StealthLiving only)")]
     public float minRespawnDistance = 5f;  // 和玩家的最小距离
     public float maxRespawnDistance = 20f; // 最大距离
+
+
 }

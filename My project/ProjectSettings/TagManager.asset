@@ -5,6 +5,12 @@ TagManager:
   serializedVersion: 3
   tags:
   - Ground
+  - ZoneA
+  - ZoneB
+  - ZoneC
+  - ZoneD
+  - ZoneE
+  - ZoneF
   layers:
   - Default
   - TransparentFX
