@@ -15,8 +15,4 @@ MonoBehaviour:
   heightOffset: 1
   anomalyName: A-001
   type: 0
-  prefab: {fileID: 9061685784377975360, guid: 99f21af89b358c84daf622c06442b646, type: 3}
-  minSpawnInterval: 5
-  maxSpawnInterval: 10
-  minRespawnDistance: 5
-  maxRespawnDistance: 20
+  prefab: {fileID: 7893390779932049497, guid: 453ab36507d21d94d9ea16af8045b8e9, type: 3}

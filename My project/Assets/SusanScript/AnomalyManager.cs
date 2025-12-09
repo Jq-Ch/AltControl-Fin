@@ -9,6 +9,8 @@ public class AnomalyManager : MonoBehaviour
 
     public int maxAnomalies = 5;
     private List<GameObject> activeAnomalies = new List<GameObject>();
+    public LayerMask groundMask;
+
 
     void Start()
     {
@@ -71,4 +73,13 @@ public class AnomalyManager : MonoBehaviour
 
         activeAnomalies.Remove(obj);
     }
+
+    public ZoneController GetZone(string tag)
+    {
+        ZoneSpawn z = zones.Find(zone => zone.zoneTag == tag);
+        if (z == null) return null;
+
+        return z.spawnPoint.GetComponentInParent<ZoneController>();
+    }
+
 }

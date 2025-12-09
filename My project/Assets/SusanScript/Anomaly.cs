@@ -2,55 +2,82 @@ using UnityEngine;
 
 public class Anomaly : MonoBehaviour
 {
-    public AnomalyData data;
-    private Transform player;
-    public string zoneTag;        // 哪个区域生成的
-    public AnomalyManager manager;
+    public AnomalyData data;        // ScriptableObject 数据
+    public string zoneTag;          // 这个异常属于哪一个 Zone（由 Spawn 时分配）
+    public AnomalyManager manager;  // manager 用于释放 zone
 
-    private void Start()
+    private Transform player;
+
+    void Start()
     {
         player = GameObject.FindWithTag("Player").transform;
     }
 
-    private void Update()
+    void Update()
     {
         if (data.type == AnomalyType.StealthLiving)
         {
             HandleStealthBehavior();
         }
+        // DeadObject 类型不需要 Update
     }
 
-    private void HandleStealthBehavior()
-    {
-        // 玩家视野检查
-        if (IsInPlayerView()) return;
-
-        // 不在视野 → 靠近玩家随机刷新
-        RespawnNearPlayer();
-    }
-
-    bool IsInPlayerView()
+    // ===============================
+    // 🟣 视野检测
+    // ===============================
+    private bool IsInPlayerView()
     {
         Vector3 dir = transform.position - Camera.main.transform.position;
         float angle = Vector3.Angle(Camera.main.transform.forward, dir);
 
-        // 视野角度 80° 可自己调
+        // 视野角度可调
         return angle < 80f;
     }
 
-    void RespawnNearPlayer()
+    // ===============================
+    // 🟣 StealthLiving 行为逻辑
+    // ===============================
+    private void HandleStealthBehavior()
     {
-        float dist = Random.Range(
-            data.minRespawnDistance,
-            data.maxRespawnDistance
-        );
+        if (IsInPlayerView())
+            return; // 在玩家视野内 → 不动
 
-        float randomAngle = Random.Range(-90f, 90f); // 玩家前方 180°
-        Vector3 offset = Quaternion.Euler(0, randomAngle, 0) * Vector3.forward * dist;
-
-        transform.position = player.position + offset;
+        RespawnInsideZone(); // 不在视野内 → 刷新位置（但不换 Zone！）
     }
 
+    // ===============================
+    // 🟣 在 Zone 内随机位置刷新
+    // ===============================
+    private void RespawnInsideZone()
+    {
+        ZoneController zone = manager.GetZone(zoneTag);
+        if (zone == null)
+        {
+            Debug.LogError("Zone not found: " + zoneTag);
+            return;
+        }
+
+        // 随机 local 坐标（XZ 平面）
+        Vector3 localRandom = new Vector3(
+            Random.Range(-zone.range.x * 0.5f, zone.range.x * 0.5f),
+            0,
+            Random.Range(-zone.range.z * 0.5f, zone.range.z * 0.5f)
+        );
+
+        // 转为世界坐标
+        Vector3 worldGuess = zone.transform.TransformPoint(localRandom);
+
+        // 落地（Raycast）
+        if (Physics.Raycast(worldGuess + Vector3.up * 5f, Vector3.down,
+            out RaycastHit hit, 20f, manager.groundMask))
+        {
+            transform.position = hit.point + Vector3.up * data.heightOffset;
+        }
+    }
+
+    // ===============================
+    // 🟣 销毁异常物（上报正确时调用）
+    // ===============================
     public void Remove()
     {
         manager.FreeZone(zoneTag, gameObject);
