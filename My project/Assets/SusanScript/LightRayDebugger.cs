@@ -6,17 +6,19 @@ public class LightRayDebugger : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))   // 鼠标左键
+        if (Input.GetMouseButtonDown(0))
         {
             Vector3 origin = transform.position;
             Vector3 dir = transform.forward;
+
+            int ignoreZoneMask = ~(1 << LayerMask.NameToLayer("ZoneCollider"));
 
             Ray ray = new Ray(origin, dir);
             RaycastHit hit;
 
             Debug.DrawRay(origin, dir * rayDistance, Color.yellow, 1f);
 
-            if (Physics.Raycast(ray, out hit, rayDistance))
+            if (Physics.Raycast(ray, out hit, rayDistance, ignoreZoneMask))
             {
                 Debug.Log("🔥 Light Ray Hit: " + hit.transform.name);
             }
