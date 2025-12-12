@@ -175,6 +175,7 @@ public class CommunicationManager : MonoBehaviour
         }
 
         // timeout
+		if (StatsManager.Instance != null) StatsManager.Instance.RecordFailure();
         yield return StartCoroutine(ShowFinalReport(false, false, false));
     }
 
@@ -212,6 +213,12 @@ public class CommunicationManager : MonoBehaviour
         bool aliveOK = (playerIsAliveAnswer == correctIsAlive);
         bool zoneOK = (playerZoneAnswer == correctZone);
         bool lightOK = SpotlightHits();
+
+		if (StatsManager.Instance != null)
+		{
+			if (aliveOK && zoneOK && lightOK) StatsManager.Instance.RecordSuccess();
+			else StatsManager.Instance.RecordFailure();
+		}
 
         // ================= DEBUG OUTPUT =================
         Debug.Log("========== FINAL CHECK ==========");
