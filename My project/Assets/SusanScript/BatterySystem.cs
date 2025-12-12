@@ -60,11 +60,11 @@ public class BatterySystem : MonoBehaviour
         {
             sequenceStep = 1; // 进入下一步（等待 K）
         }
-        else if (sequenceStep == 1 && Input.GetKeyDown(KeyCode.K))
+        else if (sequenceStep == 1 && Input.GetKeyDown(KeyCode.J))
         {
             sequenceStep = 2; // 进入下一步（等待 L）
         }
-        else if (sequenceStep == 2 && Input.GetKeyDown(KeyCode.L))
+        else if (sequenceStep == 2 && Input.GetKeyDown(KeyCode.J))
         {
             //输入 J-K-L
             currentBattery = Mathf.Min(maxBattery, currentBattery + rechargeAmount);
