@@ -10,6 +10,10 @@ public class AnomalyManager : MonoBehaviour
     public int maxAnomalies = 5;
     private List<GameObject> activeAnomalies = new List<GameObject>();
     public LayerMask groundMask;
+    [Header("Spawn Timing")]
+    public float minSpawnDelay = 3f;
+    public float maxSpawnDelay = 6f;
+
 
 
     void Start()
@@ -24,16 +28,18 @@ public class AnomalyManager : MonoBehaviour
             if (activeAnomalies.Count >= maxAnomalies)
             {
                 Debug.Log("GAME OVER: Too many anomalies!");
-                yield break; // 停止生成
+                yield break;
             }
 
+            // 调用正确的方法！
             TrySpawnAnomaly();
 
-            // 等待下一次刷新
-            float wait = Random.Range(3f, 7f);
+            float wait = Random.Range(minSpawnDelay, maxSpawnDelay);
             yield return new WaitForSeconds(wait);
         }
     }
+
+
 
     void TrySpawnAnomaly()
     {
@@ -63,6 +69,7 @@ public class AnomalyManager : MonoBehaviour
 
         chosenZone.isOccupied = true;          // 占用此区域
         activeAnomalies.Add(obj);
+
     }
 
     // 给异常物调用：当它被玩家清除时取消占用
@@ -82,4 +89,7 @@ public class AnomalyManager : MonoBehaviour
         return z.spawnPoint.GetComponentInParent<ZoneController>();
     }
 
-}
+  
+    }
+
+

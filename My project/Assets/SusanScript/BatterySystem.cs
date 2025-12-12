@@ -74,7 +74,7 @@ public class BatterySystem : MonoBehaviour
         }
         else
         {
-            // ❌ 输入错误 → 重置
+            //输入错误 → 重置
             if (Input.anyKeyDown &&
                 !Input.GetKeyDown(KeyCode.J) &&
                 !Input.GetKeyDown(KeyCode.K) &&

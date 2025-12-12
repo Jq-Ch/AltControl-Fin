@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 11849685}
   - component: {fileID: 11849684}
   - component: {fileID: 11849687}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: ZonecD
   m_TagString: ZoneD
   m_Icon: {fileID: 0}
@@ -486,7 +486,7 @@ GameObject:
   - component: {fileID: 426658372}
   - component: {fileID: 426658371}
   - component: {fileID: 426658374}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: ZoneA
   m_TagString: ZoneA
   m_Icon: {fileID: 0}
@@ -821,7 +821,7 @@ GameObject:
   - component: {fileID: 658055776}
   - component: {fileID: 658055775}
   - component: {fileID: 658055778}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: ZonecF
   m_TagString: ZoneF
   m_Icon: {fileID: 0}
@@ -1228,7 +1228,7 @@ GameObject:
   - component: {fileID: 846333418}
   - component: {fileID: 846333417}
   - component: {fileID: 846333420}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: ZonecE
   m_TagString: ZoneE
   m_Icon: {fileID: 0}
@@ -1448,7 +1448,7 @@ GameObject:
   - component: {fileID: 990987663}
   - component: {fileID: 990987662}
   - component: {fileID: 990987665}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: ZoneB
   m_TagString: ZoneB
   m_Icon: {fileID: 0}
@@ -1500,7 +1500,7 @@ Transform:
   m_GameObject: {fileID: 990987661}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -4.15, y: 0.51911, z: 6.7}
+  m_LocalPosition: {x: 1.8, y: 0.51911, z: 6.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1670,14 +1670,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1064713402}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.20311317, y: -0, z: -0, w: 0.9791553}
-  m_LocalPosition: {x: 0, y: 18.46, z: -14}
+  m_LocalRotation: {x: 0.28798732, y: -0, z: -0, w: 0.95763427}
+  m_LocalPosition: {x: 0, y: 31.6, z: -14}
   m_LocalScale: {x: 0.5, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1083362698}
   m_Father: {fileID: 2041184122}
-  m_LocalEulerAnglesHint: {x: 23.438, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 33.475, y: 0, z: 0}
 --- !u!114 &1064713405
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1778,14 +1778,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1083362695}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.2562641, y: 0, z: 0, w: 0.96660686}
-  m_LocalPosition: {x: 0, y: 10.8, z: -14.7}
+  m_LocalRotation: {x: 0.23329134, y: -0, z: -0, w: 0.9724069}
+  m_LocalPosition: {x: 0, y: 9.91, z: -14.36}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1901527254}
   m_Father: {fileID: 1064713404}
-  m_LocalEulerAnglesHint: {x: 29.697, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 26.982, y: 0, z: 0}
 --- !u!114 &1083362699
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2136,7 +2136,7 @@ GameObject:
   - component: {fileID: 1440003773}
   - component: {fileID: 1440003772}
   - component: {fileID: 1440003775}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: ZoneC
   m_TagString: ZoneC
   m_Icon: {fileID: 0}
@@ -2188,7 +2188,7 @@ Transform:
   m_GameObject: {fileID: 1440003771}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 4.6, y: 0.50511, z: 5}
+  m_LocalPosition: {x: 13.14468, y: 0.50511, z: 5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2416,7 +2416,6 @@ GameObject:
   - component: {fileID: 1901527254}
   - component: {fileID: 1901527256}
   - component: {fileID: 1901527255}
-  - component: {fileID: 1901527257}
   m_Layer: 0
   m_Name: SpotlightLight
   m_TagString: Untagged
@@ -2432,13 +2431,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1901527253}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 13}
+  m_LocalRotation: {x: -0.11516206, y: -0, z: -0, w: 0.99334675}
+  m_LocalPosition: {x: 0, y: -9.86, z: 21.66}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1083362698}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -13.226, y: 0, z: 0}
 --- !u!114 &1901527255
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2533,64 +2532,6 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
---- !u!114 &1901527257
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1901527253}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0c1a99babbd211c44bdf9621526fbc54, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LightRayDebugger
-  rayDistance: 200
---- !u!1 &1965765603
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1965765605}
-  - component: {fileID: 1965765604}
-  m_Layer: 0
-  m_Name: VoiceInput
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1965765604
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1965765603}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2c9f1df5471e3d64e80f224eef8d7ca4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::VoiceInputController
-  comms: {fileID: 1571763407}
---- !u!4 &1965765605
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1965765603}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -49.01949, y: -14.24685, z: -7.51487}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2022007397
 GameObject:
   m_ObjectHideFlags: 0
@@ -2712,4 +2653,3 @@ SceneRoots:
   - {fileID: 1118467120}
   - {fileID: 433814515}
   - {fileID: 1571763408}
-  - {fileID: 1965765605}

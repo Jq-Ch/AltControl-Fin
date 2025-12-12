@@ -23,7 +23,7 @@ public class Anomaly : MonoBehaviour
     }
 
     // ===============================
-    // 🟣 视野检测
+    // 视野检测
     // ===============================
     private bool IsInPlayerView()
     {
@@ -35,7 +35,7 @@ public class Anomaly : MonoBehaviour
     }
 
     // ===============================
-    // 🟣 StealthLiving 行为逻辑
+    // StealthLiving 行为逻辑
     // ===============================
     private void HandleStealthBehavior()
     {
@@ -46,7 +46,7 @@ public class Anomaly : MonoBehaviour
     }
 
     // ===============================
-    // 🟣 在 Zone 内随机位置刷新
+    // 在 Zone 内随机位置刷新
     // ===============================
     private void RespawnInsideZone()
     {
@@ -76,7 +76,7 @@ public class Anomaly : MonoBehaviour
     }
 
     // ===============================
-    // 🟣 销毁异常物（上报正确时调用）
+    // 销毁异常物（上报正确时调用）
     // ===============================
     public void Remove()
     {
