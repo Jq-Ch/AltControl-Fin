@@ -183,12 +183,15 @@ public class CommunicationManager : MonoBehaviour
         Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, 200f))
+        int ignoreZoneMask = ~(1 << LayerMask.NameToLayer("ZoneCollider"));
+
+        if (Physics.Raycast(ray, out hit, 200f, ignoreZoneMask))
         {
             return hit.transform.GetComponentInParent<Anomaly>()?.transform;
         }
         return null;
     }
+
 
     // ================================================================
     // FINAL EVALUATION
@@ -200,23 +203,87 @@ public class CommunicationManager : MonoBehaviour
         targetAnomaly = anomaly;
 
         Anomaly a = anomaly.GetComponent<Anomaly>();
+
         correctIsAlive = (a.data.type == AnomalyType.StealthLiving);
         correctZoneTag = a.zoneTag;
 
+        string correctZone = NormalizeZone(correctZoneTag);
+
         bool aliveOK = (playerIsAliveAnswer == correctIsAlive);
-        bool zoneOK = (playerZoneAnswer == correctZoneTag);
+        bool zoneOK = (playerZoneAnswer == correctZone);
         bool lightOK = SpotlightHits();
+
+        // ================= DEBUG OUTPUT =================
+        Debug.Log("========== FINAL CHECK ==========");
+
+        Debug.Log(
+            $"Type  : {(aliveOK ? "Correct" : "Wrong")}   " +
+            $"(Player: {(playerIsAliveAnswer ? "Alive" : "Not Alive")} | " +
+            $"Target: {(correctIsAlive ? "Alive" : "Not Alive")})"
+        );
+
+        Debug.Log(
+            $"Zone  : {(zoneOK ? "Correct" : "Wrong")}   " +
+            $"(Player: {playerZoneAnswer} | Target: {correctZone})"
+        );
+
+        Debug.Log(
+            $"Light : {(lightOK ? "Detected" : "Failed")}"
+        );
+
+        Debug.Log("=================================");
 
         StartCoroutine(ShowFinalReport(aliveOK, zoneOK, lightOK));
     }
 
+
+    bool SpotlightHits_Debug(Transform expectedAnomaly)
+    {
+        Ray ray = new Ray(spotlight.transform.position, spotlight.transform.forward);
+        RaycastHit hit;
+
+        int ignoreZoneMask = ~(1 << LayerMask.NameToLayer("ZoneCollider"));
+
+        Debug.DrawRay(ray.origin, ray.direction * 300f, Color.cyan, 1.5f);
+
+        if (Physics.Raycast(ray, out hit, 300f, ignoreZoneMask))
+        {
+            Debug.Log($"[LIGHT RAY] Hit: {hit.transform.name}");
+
+            var hitAnomaly = hit.transform.GetComponentInParent<Anomaly>();
+            if (hitAnomaly == null)
+            {
+                Debug.Log("[LIGHT RAY] ❌ Hit object has NO Anomaly in parent");
+                return false;
+            }
+
+            Debug.Log($"[LIGHT RAY] ✅ Hit Anomaly: {hitAnomaly.name}");
+            Debug.Log($"[LIGHT RAY] Expected Anomaly: {expectedAnomaly.name}");
+
+            return hitAnomaly.transform == expectedAnomaly;
+        }
+
+        Debug.Log("[LIGHT RAY] ❌ Raycast hit NOTHING");
+        return false;
+    }
+
+
+
     bool SpotlightHits()
     {
-        return Physics.Raycast(
-            new Ray(spotlight.transform.position, spotlight.transform.forward),
-            300f
-        );
+        Ray ray = new Ray(spotlight.transform.position, spotlight.transform.forward);
+        RaycastHit hit;
+
+        int ignoreZoneMask = ~(1 << LayerMask.NameToLayer("ZoneCollider"));
+
+        if (Physics.Raycast(ray, out hit, 300f, ignoreZoneMask))
+        {
+            return hit.transform.GetComponentInParent<Anomaly>() != null;
+        }
+
+        return false;
     }
+
 
     // ================================================================
     // FINAL REPORT — 包含 … 闪烁 与 隐藏检查
@@ -283,6 +350,15 @@ public class CommunicationManager : MonoBehaviour
             "GB" => "F",
             _ => "?"
         };
+    }
+
+    string NormalizeZone(string zoneTag)
+    {
+        // "ZoneA" -> "A"
+        if (zoneTag.StartsWith("Zone"))
+            return zoneTag.Replace("Zone", "");
+
+        return zoneTag;
     }
 
     // ================================================================
