@@ -2,36 +2,47 @@ using UnityEngine;
 
 public class CameraCenterRaycast : MonoBehaviour
 {
-    [Header("Ray ³¤¶È")]
+    [Header("Ray ï¿½ï¿½ï¿½ï¿½")]
     public float rayLength = 20f;
 
-    [Header("Gizmo ÑÕÉ«")]
+    [Header("Gizmo ï¿½ï¿½É«")]
     public Color gizmoColor = Color.red;
 
     private Ray _centerRay;
+	private int _maskWithoutZone;
+
+	void Awake()
+	{
+		int zoneMask = LayerMask.GetMask("ZoneCollider");
+		if (zoneMask == 0)
+		{
+			Debug.LogWarning("Layer 'ZoneCollider' not found; raycasts will not ignore it.");
+		}
+		_maskWithoutZone = ~zoneMask;
+	}
 
     void Update()
     {
-        // ´ÓÏà»úÖÐÐÄµã·¢Éä Ray£¨ÆÁÄ»ÖÐÐÄ£©
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Äµã·¢ï¿½ï¿½ Rayï¿½ï¿½ï¿½ï¿½Ä»ï¿½ï¿½ï¿½Ä£ï¿½
         _centerRay = Camera.main.ScreenPointToRay(
             new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, 0)
         );
 
-        // ½øÐÐÉäÏß¼ì²â
-        if (Physics.Raycast(_centerRay, out RaycastHit hit, rayLength))
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¼ï¿½ï¿½
+		if (Physics.Raycast(_centerRay, out RaycastHit hit, rayLength, _maskWithoutZone))
         {
             Debug.Log("Hit: " + hit.collider.name);
         }
     }
 
-    // Scene ÊÓÍ¼ÖÐ»æÖÆ Gizmo
+    // Scene ï¿½ï¿½Í¼ï¿½Ð»ï¿½ï¿½ï¿½ Gizmo
     private void OnDrawGizmos()
     {
         if (Camera.main == null) return;
 
         Gizmos.color = gizmoColor;
 
-        // »æÖÆÒ»Ìõ´ÓÉãÏñ»úÖÐÐÄÏòÇ°µÄ¿ÉÊÓ»¯Ïß
+        // ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç°ï¿½Ä¿ï¿½ï¿½Ó»ï¿½ï¿½ï¿½
         Vector3 start = Camera.main.transform.position;
         Vector3 direction = Camera.main.transform.forward;
 
