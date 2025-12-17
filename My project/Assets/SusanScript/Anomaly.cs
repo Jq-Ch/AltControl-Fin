@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Anomaly : MonoBehaviour
@@ -5,6 +7,13 @@ public class Anomaly : MonoBehaviour
     public AnomalyData data;        // ScriptableObject 数据
     public string zoneTag;          // 这个异常属于哪一个 Zone（由 Spawn 时分配）
     public AnomalyManager manager;  // manager 用于释放 zone
+                                    // === Stealth Living Watch Logic ===
+    bool wasRayHit = false;      // 曾经被 ray 扫到过
+    bool isCurrentlyHit = false;
+    float lostSightTimer = 0f;
+
+    public float teleportDelay = 2f;
+
 
     private Transform player;
 
@@ -13,13 +22,78 @@ public class Anomaly : MonoBehaviour
         player = GameObject.FindWithTag("Player").transform;
     }
 
-    void Update()
+   void Update()
+{
+    if (data.type != AnomalyType.StealthLiving)
+        return;
+
+    HandleStealthLiving();
+}
+
+    void HandleStealthLiving()
     {
-        if (data.type == AnomalyType.StealthLiving)
+        isCurrentlyHit = IsHitByCenterRay();
+
+        // 第一次被 ray 扫到
+        if (isCurrentlyHit)
         {
-            HandleStealthBehavior();
+            wasRayHit = true;
+            lostSightTimer = 0f;
+            return;
         }
-        // DeadObject 类型不需要 Update
+
+        // 曾被看到，但现在没被看
+        if (wasRayHit && !isCurrentlyHit)
+        {
+            lostSightTimer += Time.deltaTime;
+
+            if (lostSightTimer >= teleportDelay)
+            {
+                TeleportToAnotherZone();
+                ResetStealthState();
+            }
+        }
+    }
+
+    void TeleportToAnotherZone()
+    {
+        List<ZoneSpawn> freeZones = manager.zones
+            .Where(z => !z.isOccupied && z.zoneTag != zoneTag)
+            .ToList();
+
+        if (freeZones.Count == 0)
+            return;
+
+        ZoneSpawn newZone = freeZones[Random.Range(0, freeZones.Count)];
+
+        // 释放旧 zone
+        manager.FreeZone(zoneTag, gameObject);
+
+        // 占用新 zone
+        zoneTag = newZone.zoneTag;
+        newZone.isOccupied = true;
+
+        // 瞬移
+        transform.position = newZone.spawnPoint.position;
+    }
+
+    void ResetStealthState()
+    {
+        wasRayHit = false;
+        isCurrentlyHit = false;
+        lostSightTimer = 0f;
+    }
+
+
+    bool IsHitByCenterRay()
+    {
+        Vector3 dir = transform.position - Camera.main.transform.position;
+        float angle = Vector3.Angle(Camera.main.transform.forward, dir);
+
+        if (angle > 2f) return false; // 2° 很“准心感”，你可以调
+
+        float distance = dir.magnitude;
+        return distance < 100f; // 望远镜可视距离
     }
 
     // ===============================
