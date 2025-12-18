@@ -9,9 +9,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8463349411082888978}
+  - component: {fileID: 6252495627598479665}
   m_Layer: 0
   m_Name: CHR_SkeletonShort_01_Prefab
-  m_TagString: Untagged
+  m_TagString: Anomaly
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -26,12 +27,33 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 3.2, y: 3.2, z: 3.2}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 7436030405937901762}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &6252495627598479665
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6643131620998403942}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.49812168, y: 1.0167037, z: 0.2821042}
+  m_Center: {x: -0.020840317, y: 0.48864827, z: 0.067366175}
 --- !u!1001 &6969513099251668777
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -85,9 +107,9 @@ PrefabInstance:
       value: Character
       objectReference: {fileID: 0}
     - target: {fileID: 4422936236625503000, guid: cc4f8af3ca77ad244ad54c371ed5e256, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 084bf61bb8431be48b45eba124f02238, type: 2}
+      objectReference: {fileID: 2100000, guid: c8e31f1af1f5ed04eb6adcc641855a70, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -108,7 +130,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
 --- !u!95 &6133322172690369322
 Animator:
-  serializedVersion: 5
+  serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -122,6 +144,7 @@ Animator:
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1

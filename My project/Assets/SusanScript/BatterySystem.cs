@@ -9,90 +9,56 @@ public class BatterySystem : MonoBehaviour
     public float drainPerSecond = 5f;
 
     [Header("Recharge Settings")]
-    public float rechargeAmount = 10f; 
+    public float rechargeAmount = 10f;
+
     [Header("UI")]
     public Image batteryFill;
 
     [Header("Spotlight")]
     public Light spotlight;
 
-    private bool lightOn = false;
-    private int sequenceStep = 0;   // 0=等待J, 1=等待K, 2=等待L
+    private int sequenceStep = 0; // 0=等待J, 1=等待K, 2=等待L
 
     void Start()
     {
         currentBattery = maxBattery;
-        spotlight.enabled = false;
+        if (spotlight != null) spotlight.enabled = false;
+        UpdateUI();
     }
 
     void Update()
     {
-        // 组合按键检测：J → K → L
-
         CheckRechargeSequence();
 
-        // 按1 开关灯
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            ToggleLight();
-        }
-
-        // 开灯 → 电量下降
-        if (lightOn)
+        // 灯开着 → 扣电（灯的真实状态只看 spotlight.enabled）
+        if (spotlight != null && spotlight.enabled)
         {
             currentBattery -= drainPerSecond * Time.deltaTime;
 
-            if (currentBattery <= 0)
+            if (currentBattery <= 0f)
             {
-                currentBattery = 0;
-                lightOn = false;
-                spotlight.enabled = false;
+                currentBattery = 0f;
+                spotlight.enabled = false; // 强制断电
             }
         }
 
-        batteryFill.fillAmount = currentBattery / maxBattery;
+        UpdateUI();
+    }
+
+    void UpdateUI()
+    {
+        if (batteryFill != null)
+            batteryFill.fillAmount = Mathf.Clamp01(currentBattery / maxBattery);
     }
 
     // J → K → L 连续按下恢复电量
+    // 按一次 J 恢复电量（Makey Makey 友好版）
     void CheckRechargeSequence()
     {
-        if (sequenceStep == 0 && Input.GetKeyDown(KeyCode.J))
+        if (Input.GetKeyDown(KeyCode.J))
         {
-            sequenceStep = 1; // 进入下一步（等待 K）
-        }
-        else if (sequenceStep == 1 && Input.GetKeyDown(KeyCode.J))
-        {
-            sequenceStep = 2; // 进入下一步（等待 L）
-        }
-        else if (sequenceStep == 2 && Input.GetKeyDown(KeyCode.J))
-        {
-            //输入 J-K-L
             currentBattery = Mathf.Min(maxBattery, currentBattery + rechargeAmount);
-
-            // 重置输入步骤
-            sequenceStep = 0;
-        }
-        else
-        {
-            //输入错误 → 重置
-            if (Input.anyKeyDown &&
-                !Input.GetKeyDown(KeyCode.J) &&
-                !Input.GetKeyDown(KeyCode.K) &&
-                !Input.GetKeyDown(KeyCode.L))
-            {
-                sequenceStep = 0;
-            }
         }
     }
 
-
-    // 灯光开关
-    void ToggleLight()
-    {
-        if (currentBattery <= 0)
-            return;
-
-        lightOn = !lightOn;
-        spotlight.enabled = lightOn;
-    }
 }

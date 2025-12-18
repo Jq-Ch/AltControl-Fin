@@ -5,8 +5,6 @@ public class LightingToggle : MonoBehaviour
     public Light spotlight;
     public BatterySystem batterySystem;
 
-    private bool isOn = false;
-
     void Start()
     {
         spotlight.enabled = false;
@@ -14,19 +12,23 @@ public class LightingToggle : MonoBehaviour
 
     void Update()
     {
-        //电量 = 0 → 完全禁用 ToggleLight() 的功能
+        // 电量耗尽 → 强制关灯
         if (batterySystem.currentBattery <= 0)
         {
-            isOn = false;             // 强制内部状态为关闭
-            spotlight.enabled = false; // 强制灯为关闭
-            return;                   // 玩家按 1 时不会触发任何逻辑
+            spotlight.enabled = false;
+            return;
         }
 
-        // 电量 > 0 → 可以正常按 1 开 / 关灯
+        // 1 = 开灯
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            isOn = !isOn;
-            spotlight.enabled = isOn;
+            spotlight.enabled = true;
+        }
+
+        // 2 = 关灯
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            spotlight.enabled = false;
         }
     }
 }

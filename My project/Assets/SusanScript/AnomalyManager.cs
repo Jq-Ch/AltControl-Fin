@@ -28,8 +28,15 @@ public class AnomalyManager : MonoBehaviour
             if (activeAnomalies.Count >= maxAnomalies)
             {
                 Debug.Log("GAME OVER: Too many anomalies!");
+
+                if (GameEndUI.Instance != null)
+                    GameEndUI.Instance.ShowDeath();
+                else
+                    Time.timeScale = 0f;
+
                 yield break;
             }
+
 
             // 调用正确的方法！
             TrySpawnAnomaly();
