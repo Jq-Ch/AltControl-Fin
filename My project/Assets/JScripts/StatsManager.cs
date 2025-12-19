@@ -27,3 +27,4 @@ public class StatsManager : MonoBehaviour
         FailureCount = 0;
     }
 }
+
