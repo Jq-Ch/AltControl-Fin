@@ -1,109 +1,244 @@
 using UnityEngine;
 using UnityEngine.Windows.Speech;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 public class VoiceInputController : MonoBehaviour
 {
     [Header("Target Communication Manager")]
-    public CommunicationManager comms;   // 在 Inspector 里拖 CommunicationManager 进来
+    public CommunicationManager comms;
+
+    [Header("Recognizer Settings")]
+    [Tooltip("Low = easier to trigger (more false positives). Medium/High = safer.")]
+    public ConfidenceLevel confidence = ConfidenceLevel.Medium;
+
+    [Tooltip("If true, will log all recognized phrases and confidence.")]
+    public bool verboseLog = true;
+
+    [Header("Zone Phrases")]
+    [Tooltip("If true, also enable 'zone <alias>' variants (recommended).")]
+    public bool enableZonePrefixAliases = true;
 
     private KeywordRecognizer recognizer;
-    private Dictionary<string, System.Action> keywordActions;
+    private Dictionary<string, Action> keywordActions;
 
-    void Start()
+    // -------------------------
+    // Unity Lifecycle
+    // -------------------------
+    private void Start()
     {
-        // 如果没拖引用，自动找场景里第一个
+        // Auto-find comms if not assigned
         if (comms == null)
-        {
             comms = FindObjectOfType<CommunicationManager>();
+
+        BuildKeywordActions();
+
+        // Make sure we have something to listen to
+        if (keywordActions == null || keywordActions.Count == 0)
+        {
+            Debug.LogError("[VoiceInput] No keywords registered. Recognizer will not start.");
+            return;
         }
 
-        // 关键字 -> 对应执行的函数
-        keywordActions = new Dictionary<string, System.Action>
-        {
-            // 活体判断
-            { "yes",    () => OnAliveAnswer(AliveAnswer.Yes) },
-            { "yeah",   () => OnAliveAnswer(AliveAnswer.Yes) },
-            { "no",     () => OnAliveAnswer(AliveAnswer.No) },
-            { "unsure", () => OnAliveAnswer(AliveAnswer.Unsure) },
-            { "not sure", () => OnAliveAnswer(AliveAnswer.Unsure) },
-
-            // 区域：A~F
-            { "a",      () => OnZoneAnswer("A") },
-            { "b",      () => OnZoneAnswer("B") },
-            { "c",      () => OnZoneAnswer("C") },
-            { "d",      () => OnZoneAnswer("D") },
-            { "e",      () => OnZoneAnswer("E") },
-            { "f",      () => OnZoneAnswer("F") },
-
-            // 你也可以加更清楚的词
-            { "zone a", () => OnZoneAnswer("A") },
-            { "zone b", () => OnZoneAnswer("B") },
-            { "zone c", () => OnZoneAnswer("C") },
-            { "zone d", () => OnZoneAnswer("D") },
-            { "zone e", () => OnZoneAnswer("E") },
-            { "zone f", () => OnZoneAnswer("F") },
-        };
-
-        // 初始化识别器
-        recognizer = new KeywordRecognizer(keywordActions.Keys.ToArray(), ConfidenceLevel.Low);
+        // Create + start recognizer
+        recognizer = new KeywordRecognizer(keywordActions.Keys.ToArray(), confidence);
         recognizer.OnPhraseRecognized += OnPhraseRecognized;
         recognizer.Start();
 
-        Debug.Log("[VoiceInput] Started. Listening for: " + string.Join(", ", keywordActions.Keys));
+        Debug.Log("[VoiceInput] Started.");
+        Debug.Log("[VoiceInput] Confidence: " + confidence);
+        Debug.Log("[VoiceInput] Keywords count: " + keywordActions.Count);
+        Debug.Log("[VoiceInput] Listening for: " + string.Join(", ", keywordActions.Keys));
+
+        // Sanity check (common debugging)
+        Debug.Log("[VoiceInput] Has YES? " + keywordActions.ContainsKey("yes"));
+        Debug.Log("[VoiceInput] Has NO? " + keywordActions.ContainsKey("no"));
     }
 
-    void OnDestroy()
+    private void OnDisable()
     {
-        if (recognizer != null)
+        StopRecognizer();
+    }
+
+    private void OnDestroy()
+    {
+        StopRecognizer();
+    }
+
+    // -------------------------
+    // Recognizer handling
+    // -------------------------
+    private void StopRecognizer()
+    {
+        if (recognizer == null) return;
+
+        try
         {
             recognizer.OnPhraseRecognized -= OnPhraseRecognized;
-            recognizer.Stop();
+
+            if (recognizer.IsRunning)
+                recognizer.Stop();
+
             recognizer.Dispose();
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning("[VoiceInput] StopRecognizer exception: " + e.Message);
+        }
+        finally
+        {
+            recognizer = null;
         }
     }
 
     private void OnPhraseRecognized(PhraseRecognizedEventArgs args)
     {
-        string text = args.text.ToLower();
-        Debug.Log("[VoiceInput] Heard: " + text);
+        string text = (args.text ?? string.Empty).Trim().ToLowerInvariant();
 
-        if (keywordActions.TryGetValue(text, out var action))
+        if (verboseLog)
+            Debug.Log($"[VoiceInput] Heard: '{text}' | Confidence: {args.confidence} | Time: {args.phraseDuration.TotalSeconds:F2}s");
+
+
+        if (string.IsNullOrEmpty(text))
+            return;
+
+        if (keywordActions != null && keywordActions.TryGetValue(text, out var action))
         {
             action?.Invoke();
         }
+        else
+        {
+            if (verboseLog)
+                Debug.Log("[VoiceInput] Unhandled phrase: " + text);
+        }
     }
 
-    // ---------- 活体回答 ----------
+    // -------------------------
+    // Keywords map
+    // -------------------------
+    private void BuildKeywordActions()
+    {
+        keywordActions = new Dictionary<string, Action>(StringComparer.OrdinalIgnoreCase);
+
+        // ---- Alive answers ----
+        AddKeyword("yes", () => OnAliveAnswer(AliveAnswer.Yes));
+        AddKeyword("yeah", () => OnAliveAnswer(AliveAnswer.Yes));
+        AddKeyword("yep", () => OnAliveAnswer(AliveAnswer.Yes));
+        AddKeyword("affirmative", () => OnAliveAnswer(AliveAnswer.Yes));
+
+        AddKeyword("no", () => OnAliveAnswer(AliveAnswer.No));
+        AddKeyword("nope", () => OnAliveAnswer(AliveAnswer.No));
+        AddKeyword("negative", () => OnAliveAnswer(AliveAnswer.No));
+
+        AddKeyword("unsure", () => OnAliveAnswer(AliveAnswer.Unsure));
+        AddKeyword("not sure", () => OnAliveAnswer(AliveAnswer.Unsure));
+        AddKeyword("unknown", () => OnAliveAnswer(AliveAnswer.Unsure));
+
+        // ---- Zones (use distinct phrases; avoid single-word aliases) ----
+        // A
+        AddKeyword("black cliff", () => OnZoneAnswer("A"));
+        if (enableZonePrefixAliases)
+        {
+            AddKeyword("zone black cliff", () => OnZoneAnswer("A"));
+            AddKeyword("zone cliff", () => OnZoneAnswer("A"));
+        }
+
+        // B
+        AddKeyword("mushroom circle", () => OnZoneAnswer("B"));
+        if (enableZonePrefixAliases)
+        {
+            AddKeyword("fairy circle", () => OnZoneAnswer("B"));
+            AddKeyword("zone mushroom", () => OnZoneAnswer("B"));
+        }
+
+        // C
+        AddKeyword("raven mile", () => OnZoneAnswer("C"));
+        if (enableZonePrefixAliases)
+        {
+            AddKeyword("zone raven mile", () => OnZoneAnswer("C"));
+            AddKeyword("zone mile", () => OnZoneAnswer("C"));
+        }
+
+        // D
+        AddKeyword("cinder creek", () => OnZoneAnswer("D"));
+        if (enableZonePrefixAliases)
+        {
+            AddKeyword("zone cinder creek", () => OnZoneAnswer("D"));
+            AddKeyword("zone creek", () => OnZoneAnswer("D"));
+        }
+
+        // E
+        AddKeyword("mine cave", () => OnZoneAnswer("E"));
+        if (enableZonePrefixAliases)
+        {
+            AddKeyword("zone mine cave", () => OnZoneAnswer("E"));
+            AddKeyword("zone cave", () => OnZoneAnswer("E"));
+        }
+
+        // F
+        AddKeyword("raccoon cabin", () => OnZoneAnswer("F"));
+        if (enableZonePrefixAliases)
+        {
+            AddKeyword("zone raccoon cabin", () => OnZoneAnswer("F"));
+            AddKeyword("zone cabin", () => OnZoneAnswer("F"));
+        }
+    }
+
+    private void AddKeyword(string key, Action action)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+            return;
+
+        key = key.Trim().ToLowerInvariant();
+
+        // Avoid duplicates silently (or warn)
+        if (keywordActions.ContainsKey(key))
+        {
+            Debug.LogWarning("[VoiceInput] Duplicate keyword ignored: " + key);
+            return;
+        }
+
+        keywordActions.Add(key, action);
+    }
+
+    // -------------------------
+    // Alive / Zone dispatch
+    // -------------------------
     public enum AliveAnswer { Yes, No, Unsure }
 
-    void OnAliveAnswer(AliveAnswer answer)
+    private void OnAliveAnswer(AliveAnswer answer)
     {
-        if (comms == null) return;
+        if (comms == null)
+        {
+            if (verboseLog) Debug.LogWarning("[VoiceInput] CommunicationManager is null.");
+            return;
+        }
 
-        // 通知 CommunicationManager（下面第 3 部分会加这些接口）
         switch (answer)
         {
             case AliveAnswer.Yes:
                 comms.ReceiveAliveAnswerFromVoice(true, "Subject is alive.");
                 break;
+
             case AliveAnswer.No:
                 comms.ReceiveAliveAnswerFromVoice(false, "Subject is not alive.");
                 break;
+
             case AliveAnswer.Unsure:
                 comms.ReceiveAliveAnswerFromVoice(false, "Unsure.");
                 break;
         }
     }
 
-    // ---------- 区域回答 ----------
-    void OnZoneAnswer(string zoneLetter)
+    private void OnZoneAnswer(string zoneLetter)
     {
-        if (comms == null) return;
+        if (comms == null)
+        {
+            if (verboseLog) Debug.LogWarning("[VoiceInput] CommunicationManager is null.");
+            return;
+        }
 
         comms.ReceiveZoneAnswerFromVoice(zoneLetter);
     }
-
-
 }
